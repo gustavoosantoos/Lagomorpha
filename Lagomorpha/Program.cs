@@ -17,6 +17,7 @@ namespace Lagomorpha
                 .ConfigureServices(s =>
                 {
                     s.AddLagomorpha();
+                    s.AddTransient<FooBarHandler>();
                 })
                 .Build();
 

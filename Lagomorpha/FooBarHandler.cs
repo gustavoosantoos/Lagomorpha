@@ -1,17 +1,17 @@
 ﻿namespace Lagomorpha
 {
-    public class FooBarHandler : RabbitQueueWorker
+    public class FooBarHandler
     {
         [QueueHandler("ProductQueue")]
         public void Handle(Product product)
         {
-
+            
         }
 
         [QueueHandler("SellQueue")]
         public void Handle(Sell sell)
         {
-
+                    
         }
     }
 
