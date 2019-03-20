@@ -18,6 +18,7 @@ namespace Lagomorpha
             foreach (var methodInfo in methods)
             {
                 var attribute = methodInfo.GetCustomAttribute<QueueHandlerAttribute>();
+                RabbitQueueEngine.Instance.HandlersDefinitions.Add(attribute.QueueName, methodInfo);
             }
         }
     }

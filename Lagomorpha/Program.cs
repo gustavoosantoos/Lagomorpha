@@ -16,7 +16,7 @@ namespace Lagomorpha
                 .ConfigureAppConfiguration(c => c.AddEnvironmentVariables())
                 .ConfigureServices(s =>
                 {
-                    s.AddHostedService<RabbitQueueWorker>();
+                    s.AddLagomorpha();
                 })
                 .Build();
 

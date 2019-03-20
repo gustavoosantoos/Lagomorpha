@@ -8,10 +8,11 @@ namespace Lagomorpha
 {
     public class RabbitQueueWorker : IHostedService
     {
-
-
         public Task StartAsync(CancellationToken cancellationToken)
         {
+            var queue = "ProductQueue";
+            var handler = RabbitQueueEngine.Instance.HandlersDefinitions[queue];
+
             return Task.CompletedTask;
         }
 
