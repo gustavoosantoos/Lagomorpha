@@ -1,12 +1,26 @@
-﻿using System;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using System;
+using System.Threading.Tasks;
 
 namespace Lagomorpha
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static async Task Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            var host = new HostBuilder()
+                .ConfigureLogging(l => l.AddConsole())
+                .ConfigureAppConfiguration(c => c.AddEnvironmentVariables())
+                .ConfigureServices(s =>
+                {
+                    s.AddHostedService<RabbitQueueWorker>();
+                })
+                .Build();
+
+            await host.RunAsync();
         }
     }
 }
