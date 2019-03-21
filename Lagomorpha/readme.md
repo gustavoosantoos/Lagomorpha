@@ -1,10 +1,10 @@
-﻿# Logamorpha
+﻿# Lagomorpha
 
 Library to abstract the message consumption from RabbitMQ for .NET Core.
 
 #### Do you want to know the name's origin?
 
-The rabbit comes from the family Logamorpha. So, like Logamorpha is a higher
+The rabbit comes from the family Lagomorpha. So, like Lagomorpha is a higher
 level of rabbits, this library is an abstraction for RabbitMQ. :)
 
 #### Usage
@@ -16,7 +16,7 @@ level of rabbits, this library is an abstraction for RabbitMQ. :)
 public void ConfigureServices(IServiceCollection services)
 {
     ...
-    services.AddLogamorpha();
+    services.AddLagomorpha();
     services.AddMvc();
 }
 ~~~~
@@ -38,5 +38,5 @@ public class MessageHandler
 
 - And that's all! :D
 
-Logamorpha will handle new messages in the queue called **NewProductQueue**, and
+Lagomorpha will handle new messages in the queue called **NewProductQueue**, and
 cast the incoming messages to the class **Product**, the first method's parameter.
