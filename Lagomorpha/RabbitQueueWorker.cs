@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Newtonsoft.Json;
@@ -14,17 +15,19 @@ namespace Lagomorpha
     public class RabbitQueueWorker : IHostedService
     {
         private readonly IServiceProvider _provider;
+        private readonly IConfiguration _configuration;
         private readonly ConnectionFactory _connectionFactory;
 
 
-        public RabbitQueueWorker(IServiceProvider provider)
+        public RabbitQueueWorker(IServiceProvider provider, IConfiguration configuration)
         {
             _provider = provider;
+            _configuration = configuration;
             _connectionFactory = new ConnectionFactory
             {
-                HostName = "localhost",
-                UserName = "guest",
-                Password = "guest"
+                HostName = _configuration.GetSection("RabbitMQ:HostName").Value ?? "localhost",
+                UserName = _configuration.GetSection("RabbitMQ:UserName").Value ?? "guest",
+                Password = _configuration.GetSection("RabbitMQ:Password").Value ?? "guest"
             };
         }
 
