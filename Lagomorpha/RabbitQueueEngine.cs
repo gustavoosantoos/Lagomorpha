@@ -12,13 +12,13 @@ namespace Lagomorpha
 
         public static RabbitQueueEngine Instance => _instance.Value;
 
+        public Dictionary<string, MethodInfo> HandlersDefinitions { get; private set; }
+
         private RabbitQueueEngine()
         {
             HandlersDefinitions = new Dictionary<string, MethodInfo>();
             LoadDefinitions(GetMethodHandlers());
         }
-        
-        public Dictionary<string, MethodInfo> HandlersDefinitions { get; private set; }
         
         private static MethodInfo[] GetMethodHandlers()
         {
