@@ -1,7 +1,9 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 
 namespace Lagomorpha
 {
@@ -13,6 +15,14 @@ namespace Lagomorpha
         {
             HandlersDefinitions = new Dictionary<string, MethodInfo>();
             LoadDefinitions(GetMethodHandlers(assembly));
+        }
+
+        public void DispatchHandlerCall(string queue, object handlerCaller, string arg)
+        {
+            var handlerToDispatch = HandlersDefinitions[queue];
+            var parameterType = handlerToDispatch.GetParameters()[0].ParameterType;
+            
+            handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
         }
         
         private MethodInfo[] GetMethodHandlers(Assembly assembly)

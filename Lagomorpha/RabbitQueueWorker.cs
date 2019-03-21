@@ -1,14 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
+using System;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
-using Newtonsoft.Json;
-using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
 
 namespace Lagomorpha
 {
@@ -41,15 +39,12 @@ namespace Lagomorpha
 
             consumer.Received += (sender, e) =>
             {
-                var handlerToDispatch = _engine.HandlersDefinitions[e.RoutingKey];
-
                 using (var scope = _provider.CreateScope())
                 {
+                    var handlerToDispatch = _engine.HandlersDefinitions[e.RoutingKey];
                     var handlerClass = scope.ServiceProvider.GetService(handlerToDispatch.DeclaringType);
-                    var parameterType = handlerToDispatch.GetParameters()[0].ParameterType;
-                    var convertedParameter = JsonConvert.DeserializeObject(Encoding.UTF8.GetString(e.Body), parameterType);
 
-                    handlerToDispatch.Invoke(handlerClass, new[] { convertedParameter });
+                    _engine.DispatchHandlerCall(e.RoutingKey, handlerClass, Encoding.UTF8.GetString(e.Body));
                     channel.BasicAck(e.DeliveryTag, false);
                 }
             };

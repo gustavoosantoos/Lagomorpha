@@ -6,7 +6,12 @@
     <TargetFramework>netcoreapp2.2</TargetFramework>
     <ApplicationIcon />
     <StartupObject />
-    <Version>1.0.1</Version>
+    <Version>1.0.2</Version>
+    <Authors>Gustavo Oliveira</Authors>
+    <Company>IntellyCraft</Company>
+    <Description>Library to abstract the message consumption from RabbitMQ for .NET Core.</Description>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
   </PropertyGroup>
 
   <ItemGroup>
