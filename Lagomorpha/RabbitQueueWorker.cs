@@ -23,12 +23,20 @@ namespace Lagomorpha
             _engine = engine;
             _provider = provider;
             _configuration = configuration;
-            _connectionFactory = new ConnectionFactory
+            _connectionFactory = new ConnectionFactory();
+
+            var uri = _configuration.GetSection("RabbitMQ:Uri").Value;
+
+            if (uri != null)
             {
-                HostName = _configuration.GetSection("RabbitMQ:HostName").Value ?? "localhost",
-                UserName = _configuration.GetSection("RabbitMQ:UserName").Value ?? "guest",
-                Password = _configuration.GetSection("RabbitMQ:Password").Value ?? "guest"
-            };
+                _connectionFactory.Uri = new Uri(uri);
+            }
+            else
+            {
+                _connectionFactory.HostName = _configuration.GetSection("RabbitMQ:HostName").Value ?? "localhost";
+                _connectionFactory.UserName = _configuration.GetSection("RabbitMQ:UserName").Value ?? ConnectionFactory.DefaultUser;
+                _connectionFactory.Password = _configuration.GetSection("RabbitMQ:Password").Value ?? ConnectionFactory.DefaultPass;
+            }
         }
 
         public Task StartAsync(CancellationToken cancellationToken)
