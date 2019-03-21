@@ -7,23 +7,17 @@ namespace Lagomorpha
 {
     public class RabbitQueueEngine
     {
-        private static readonly Lazy<RabbitQueueEngine> _instance =
-            new Lazy<RabbitQueueEngine>(() => new RabbitQueueEngine());
-
-        public static RabbitQueueEngine Instance => _instance.Value;
-
         public Dictionary<string, MethodInfo> HandlersDefinitions { get; private set; }
 
-        private RabbitQueueEngine()
+        public RabbitQueueEngine(Assembly assembly)
         {
             HandlersDefinitions = new Dictionary<string, MethodInfo>();
-            LoadDefinitions(GetMethodHandlers());
+            LoadDefinitions(GetMethodHandlers(assembly));
         }
         
-        private static MethodInfo[] GetMethodHandlers()
+        private MethodInfo[] GetMethodHandlers(Assembly assembly)
         {
-            return Assembly
-                .GetCallingAssembly()
+            return assembly
                 .GetTypes()
                 .SelectMany(t => t.GetMethods())
                 .Where(m => m.GetCustomAttributes(typeof(QueueHandlerAttribute), false).Length > 0)

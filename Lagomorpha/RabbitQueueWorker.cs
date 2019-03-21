@@ -16,11 +16,13 @@ namespace Lagomorpha
     {
         private readonly IServiceProvider _provider;
         private readonly IConfiguration _configuration;
+        private readonly RabbitQueueEngine _engine;
         private readonly ConnectionFactory _connectionFactory;
 
 
-        public RabbitQueueWorker(IServiceProvider provider, IConfiguration configuration)
+        public RabbitQueueWorker(IServiceProvider provider, IConfiguration configuration, RabbitQueueEngine engine)
         {
+            _engine = engine;
             _provider = provider;
             _configuration = configuration;
             _connectionFactory = new ConnectionFactory
@@ -39,7 +41,7 @@ namespace Lagomorpha
 
             consumer.Received += (sender, e) =>
             {
-                var handlerToDispatch = RabbitQueueEngine.Instance.HandlersDefinitions[e.RoutingKey];
+                var handlerToDispatch = _engine.HandlersDefinitions[e.RoutingKey];
 
                 using (var scope = _provider.CreateScope())
                 {
@@ -52,7 +54,7 @@ namespace Lagomorpha
                 }
             };
 
-            foreach (var queue in RabbitQueueEngine.Instance.HandlersDefinitions.Keys)
+            foreach (var queue in _engine.HandlersDefinitions.Keys)
             {
                 channel.QueueDeclare(queue, true, false, false);
                 channel.BasicConsume(queue, false, consumer);
