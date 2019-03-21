@@ -1,6 +1,6 @@
 ﻿# Logamorpha
 
-Library to abstract the message consuption from RabbitMQ for .NET Core.
+Library to abstract the message consumption from RabbitMQ for .NET Core.
 
 #### Do you want to know the name's origin?
 
