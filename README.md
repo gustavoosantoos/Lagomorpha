@@ -10,13 +10,13 @@ level of rabbits, this library is an abstraction for RabbitMQ. :)
 #### Usage
 
 - Include this package in your project.
-- In your .NET Core section to configuration of services, include:
+- In your .NET Core section to configuration of services, include, passing one type of the assembly where the handlers will be located:
 
 ~~~~
 public void ConfigureServices(IServiceCollection services)
 {
     ...
-    services.AddLagomorpha();
+    services.AddLagomorpha(typeof(Startup));
     services.AddMvc();
 }
 ~~~~
@@ -34,6 +34,18 @@ public class MessageHandler
     }
 }
 
+~~~~
+
+- Add this handler to de Dependency Injection service:
+
+~~~~
+public void ConfigureServices(IServiceCollection services)
+{
+    ...
+    services.AddLagomorpha(typeof(Startup));
+    services.AddScoped<MessageHandler>();
+    services.AddMvc();
+}
 ~~~~
 
 - And that's all! :D
