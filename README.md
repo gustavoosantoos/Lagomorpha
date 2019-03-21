@@ -9,7 +9,9 @@ level of rabbits, this library is an abstraction for RabbitMQ. :)
 
 #### Usage
 
-- Include this package in your project.
+- Include this package in your project, using this command in you Package Manager Console:
+`Install-Package Lagomorpha`
+
 - In your .NET Core section to configuration of services, include, passing one type of the assembly where the handlers will be located:
 
 ~~~~
