@@ -2,10 +2,7 @@
 
 Library to abstract the message consumption from RabbitMQ for .NET Core.
 
-#### Do you want to know the name's origin?
-
-The rabbit comes from the family Lagomorpha. So, like Lagomorpha is a higher
-level of rabbits, this library is an abstraction for RabbitMQ. :)
+The rabbit comes from the family Lagomorpha.
 
 #### Usage
 
