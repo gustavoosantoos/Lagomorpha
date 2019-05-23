@@ -6,7 +6,7 @@ The rabbit comes from the family Lagomorpha.
 
 #### Usage
 
-- Include this package in your project, using this command in you Package Manager Console:
+- Include this package in your project, using this command in your Package Manager Console: <br />
 `Install-Package Lagomorpha`
 
 - In your .NET Core section to configuration of services, include, passing one type of the assembly where the handlers will be located:
