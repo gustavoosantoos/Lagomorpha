@@ -21,15 +21,23 @@ public void ConfigureServices(IServiceCollection services)
 ~~~~
 
 - Create some class to handle your messages:
+- You can also declare dependencies in the constructor, Lagomorpha uses the default Dependency Injection provider to create the class, so, your depencency must be declared in your DI provider.
 
 ~~~~
 
 public class MessageHandler 
 {
+    private readonly ISomeDependency _dep;
+    
+    public MessageHandler(ISomeDependency dep) 
+    {
+        _dep = dep;
+    }
+
     [QueueHandler("NewProductQueue")]
     public void HandleNewProduct(Product p)
     {
-        DoSomething(p);    
+        _dep.DoSomething(p);    
     }
 }
 
