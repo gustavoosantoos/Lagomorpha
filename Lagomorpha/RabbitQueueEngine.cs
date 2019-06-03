@@ -42,7 +42,7 @@ namespace Lagomorpha
             foreach (var methodInfo in methods)
             {
                 if (methodInfo.GetParameters().Count() > 1)
-                    throw new MethodAccessException("Method must have none or one parameter");
+                    throw new TargetParameterCountException("Method must have none or one parameter");
 
                 var attribute = methodInfo.GetCustomAttribute<QueueHandlerAttribute>();
                 HandlersDefinitions.Add(attribute.QueueName, methodInfo);
