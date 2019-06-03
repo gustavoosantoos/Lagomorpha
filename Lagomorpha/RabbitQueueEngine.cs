@@ -20,11 +20,14 @@ namespace Lagomorpha
         public void DispatchHandlerCall(string queue, object handlerCaller, string arg)
         {
             var handlerToDispatch = HandlersDefinitions[queue];
+
+            if (handlerToDispatch.GetParameters().Count() == 0)
+                handlerToDispatch.Invoke(handlerCaller, new object[] { });
+
             var parameterType = handlerToDispatch.GetParameters()[0].ParameterType;
-            
             handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
         }
-        
+
         private MethodInfo[] GetMethodHandlers(Assembly assembly)
         {
             return assembly
@@ -38,6 +41,9 @@ namespace Lagomorpha
         {
             foreach (var methodInfo in methods)
             {
+                if (methodInfo.GetParameters().Count() > 1)
+                    throw new MethodAccessException("Method must have none or one parameter");
+
                 var attribute = methodInfo.GetCustomAttribute<QueueHandlerAttribute>();
                 HandlersDefinitions.Add(attribute.QueueName, methodInfo);
             }
