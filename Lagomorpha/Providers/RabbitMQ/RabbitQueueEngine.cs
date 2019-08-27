@@ -1,13 +1,12 @@
-﻿using Newtonsoft.Json;
-using System;
+﻿using Lagomorpha.Abstractions;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
-namespace Lagomorpha
+namespace Lagomorpha.Providers.RabbitMQ
 {
-    public class RabbitQueueEngine
+    public class RabbitQueueEngine : IQueueEngine
     {
         public Dictionary<string, MethodInfo> HandlersDefinitions { get; private set; }
 

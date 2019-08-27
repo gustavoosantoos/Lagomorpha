@@ -1,4 +1,4 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using Lagomorpha.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using RabbitMQ.Client;
@@ -8,38 +8,34 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Lagomorpha
+namespace Lagomorpha.Providers.RabbitMQ
 {
-    public class RabbitQueueWorker : IHostedService
+    public class RabbitQueueWorker : BackgroundService
     {
         private readonly IServiceProvider _provider;
-        private readonly IConfiguration _configuration;
-        private readonly RabbitQueueEngine _engine;
+        private readonly IQueueEngine _engine;
         private readonly ConnectionFactory _connectionFactory;
 
 
-        public RabbitQueueWorker(IServiceProvider provider, IConfiguration configuration, RabbitQueueEngine engine)
+        public RabbitQueueWorker(ILagomorphaConfiguration configuration, IQueueEngine engine, IServiceProvider provider)
         {
             _engine = engine;
             _provider = provider;
-            _configuration = configuration;
             _connectionFactory = new ConnectionFactory();
 
-            var uri = _configuration.GetSection("RabbitMQ:Uri").Value;
-
-            if (uri != null)
+            if (configuration.Uri != null)
             {
-                _connectionFactory.Uri = new Uri(uri);
+                _connectionFactory.Uri = configuration.Uri;
             }
             else
             {
-                _connectionFactory.HostName = _configuration.GetSection("RabbitMQ:HostName").Value ?? "localhost";
-                _connectionFactory.UserName = _configuration.GetSection("RabbitMQ:UserName").Value ?? ConnectionFactory.DefaultUser;
-                _connectionFactory.Password = _configuration.GetSection("RabbitMQ:Password").Value ?? ConnectionFactory.DefaultPass;
+                _connectionFactory.HostName = configuration.Host;
+                _connectionFactory.UserName = configuration.Username ?? ConnectionFactory.DefaultUser;
+                _connectionFactory.Password = configuration.Password ?? ConnectionFactory.DefaultPass;
             }
         }
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
             var connection = _connectionFactory.CreateConnection();
             var channel = connection.CreateModel();
@@ -63,11 +59,6 @@ namespace Lagomorpha
                 channel.BasicConsume(queue, false, consumer);
             }
 
-            return Task.CompletedTask;
-        }
-
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
             return Task.CompletedTask;
         }
     }

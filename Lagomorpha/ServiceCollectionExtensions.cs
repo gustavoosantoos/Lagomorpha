@@ -1,16 +1,28 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+﻿using Lagomorpha.Abstractions;
+using Lagomorpha.Providers;
+using Lagomorpha.Providers.RabbitMQ;
+using Microsoft.Extensions.DependencyInjection;
 using System;
-using System.Linq;
-using System.Reflection;
 
 namespace Lagomorpha
 {
     public static class ServiceCollectionExtensions
     {
-        public static void AddLagomorpha(this IServiceCollection services, Type assemblyType)
+        public static void AddLagomorpha(this IServiceCollection services, Action<ILagomorphaConfigurationBuilder> builderAction)
         {
-            services.AddSingleton(s => new RabbitQueueEngine(assemblyType.Assembly));
-            services.AddHostedService<RabbitQueueWorker>();
+            var builder = new LagomorphaConfigurationBuilder();
+            builderAction(builder);
+            var configuration = builder.Build();
+
+            services.AddSingleton(configuration);
+
+            switch (configuration.Provider)
+            {
+                case EProviders.RabbitMQ:
+                default:
+                    services.AddRabbitMQProvider();
+                    break;
+            }
         }
     }
 }
