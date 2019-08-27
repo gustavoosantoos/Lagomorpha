@@ -5,9 +5,9 @@ namespace Lagomorpha.Providers.RabbitMQ
 {
     public static class RabbitMQServiceCollectionExtensions
     {
-        public static void AddRabbitMQProvider(this IServiceCollection services)
+        public static void AddRabbitMQProviderServices(this IServiceCollection services)
         {
-            services.AddScoped<IQueueEngine, RabbitQueueEngine>();
+            services.AddTransient<IQueueEngine, RabbitQueueEngine>();
             services.AddHostedService<RabbitQueueWorker>();
         }
     }

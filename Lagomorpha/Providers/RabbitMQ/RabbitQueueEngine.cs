@@ -10,10 +10,10 @@ namespace Lagomorpha.Providers.RabbitMQ
     {
         public Dictionary<string, MethodInfo> HandlersDefinitions { get; private set; }
 
-        public RabbitQueueEngine(Assembly assembly)
+        public RabbitQueueEngine(ILagomorphaConfiguration configuration)
         {
             HandlersDefinitions = new Dictionary<string, MethodInfo>();
-            LoadDefinitions(GetMethodHandlers(assembly));
+            LoadDefinitions(GetMethodHandlers(configuration.Assembly));
         }
 
         public void DispatchHandlerCall(string queue, object handlerCaller, string arg)

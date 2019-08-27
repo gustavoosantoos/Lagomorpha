@@ -67,6 +67,7 @@ namespace Lagomorpha
             return new LagomorphaConfiguration
             {
                 Uri = _configuration.Uri,
+                Assembly = _configuration.Assembly,
                 Username = _configuration.Username,
                 Password = _configuration.Password,
                 Host = _configuration.Host,

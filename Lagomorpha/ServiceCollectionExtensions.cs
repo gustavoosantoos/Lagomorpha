@@ -20,7 +20,7 @@ namespace Lagomorpha
             {
                 case EProviders.RabbitMQ:
                 default:
-                    services.AddRabbitMQProvider();
+                    services.AddRabbitMQProviderServices();
                     break;
             }
         }
