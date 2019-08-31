@@ -36,7 +36,11 @@ namespace Lagomorpha.Providers.RabbitMQ
 
         private void LoadDefinitions(MethodInfo[] methods)
         {
-            foreach (var methodInfo in methods.GroupBy(m => m.GetCustomAttribute<QueueHandlerAttribute>().QueueName))
+            var methodsOrderedAndGrouped = methods
+                .OrderBy(m => m.GetCustomAttribute<QueueHandlerAttribute>().Order)
+                .GroupBy(m => m.GetCustomAttribute<QueueHandlerAttribute>().QueueName);
+
+            foreach (var methodInfo in methodsOrderedAndGrouped)
             {
                 if (methodInfo.Any(mi => mi.GetParameters().Count() > 1))
                     throw new TargetParameterCountException("Method must have none or one parameter");

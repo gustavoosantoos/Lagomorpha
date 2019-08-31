@@ -7,6 +7,7 @@ namespace Lagomorpha
     {
         public string QueueName { get; }
         public InputFormat Format { get; }
+        public int Order { get; set; }
 
         public QueueHandlerAttribute(string queueName, InputFormat format = InputFormat.Json)
         {
