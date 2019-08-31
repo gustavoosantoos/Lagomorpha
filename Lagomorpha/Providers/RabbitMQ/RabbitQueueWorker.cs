@@ -45,10 +45,12 @@ namespace Lagomorpha.Providers.RabbitMQ
             {
                 using (var scope = _provider.CreateScope())
                 {
-                    var handlerToDispatch = _engine.HandlersDefinitions[e.RoutingKey];
-                    var handlerClass = scope.ServiceProvider.GetService(handlerToDispatch.DeclaringType);
+                    foreach (var handlerToDispatch in _engine.HandlersDefinitions[e.RoutingKey])
+                    {
+                        var handlerClass = scope.ServiceProvider.GetService(handlerToDispatch.DeclaringType);
+                        _engine.DispatchHandlerCall(handlerToDispatch, handlerClass, Encoding.UTF8.GetString(e.Body));
+                    }
 
-                    _engine.DispatchHandlerCall(e.RoutingKey, handlerClass, Encoding.UTF8.GetString(e.Body));
                     channel.BasicAck(e.DeliveryTag, false);
                 }
             };

@@ -8,18 +8,16 @@ namespace Lagomorpha.Providers.RabbitMQ
 {
     public class RabbitQueueEngine : IQueueEngine
     {
-        public Dictionary<string, MethodInfo> HandlersDefinitions { get; private set; }
+        public Dictionary<string, MethodInfo[]> HandlersDefinitions { get; private set; }
 
         public RabbitQueueEngine(ILagomorphaConfiguration configuration)
         {
-            HandlersDefinitions = new Dictionary<string, MethodInfo>();
+            HandlersDefinitions = new Dictionary<string, MethodInfo[]>();
             LoadDefinitions(GetMethodHandlers(configuration.Assembly));
         }
 
-        public void DispatchHandlerCall(string queue, object handlerCaller, string arg)
+        public void DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg)
         {
-            var handlerToDispatch = HandlersDefinitions[queue];
-
             if (handlerToDispatch.GetParameters().Count() == 0)
                 handlerToDispatch.Invoke(handlerCaller, new object[] { });
 
@@ -38,13 +36,12 @@ namespace Lagomorpha.Providers.RabbitMQ
 
         private void LoadDefinitions(MethodInfo[] methods)
         {
-            foreach (var methodInfo in methods)
+            foreach (var methodInfo in methods.GroupBy(m => m.GetCustomAttribute<QueueHandlerAttribute>().QueueName))
             {
-                if (methodInfo.GetParameters().Count() > 1)
+                if (methodInfo.Any(mi => mi.GetParameters().Count() > 1))
                     throw new TargetParameterCountException("Method must have none or one parameter");
 
-                var attribute = methodInfo.GetCustomAttribute<QueueHandlerAttribute>();
-                HandlersDefinitions.Add(attribute.QueueName, methodInfo);
+                HandlersDefinitions.Add(methodInfo.Key, methodInfo.ToArray());
             }
         }
     }

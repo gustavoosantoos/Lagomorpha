@@ -5,8 +5,8 @@ namespace Lagomorpha.Abstractions
 {
     public interface IQueueEngine
     {
-        Dictionary<string, MethodInfo> HandlersDefinitions { get; }
+        Dictionary<string, MethodInfo[]> HandlersDefinitions { get; }
 
-        void DispatchHandlerCall(string queue, object handlerCaller, string arg);
+        void DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg);
     }
 }
