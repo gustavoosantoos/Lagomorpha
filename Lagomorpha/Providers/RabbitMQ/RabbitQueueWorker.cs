@@ -30,6 +30,7 @@ namespace Lagomorpha.Providers.RabbitMQ
             else
             {
                 _connectionFactory.HostName = configuration.Host;
+                _connectionFactory.Port = configuration.Port;
                 _connectionFactory.UserName = configuration.Username ?? ConnectionFactory.DefaultUser;
                 _connectionFactory.Password = configuration.Password ?? ConnectionFactory.DefaultPass;
             }
@@ -41,14 +42,14 @@ namespace Lagomorpha.Providers.RabbitMQ
             var channel = connection.CreateModel();
             var consumer = new EventingBasicConsumer(channel);
 
-            consumer.Received += (sender, e) =>
+            consumer.Received += async (sender, e) =>
             {
                 using (var scope = _provider.CreateScope())
                 {
                     foreach (var handlerToDispatch in _engine.HandlersDefinitions[e.RoutingKey])
                     {
                         var handlerClass = scope.ServiceProvider.GetService(handlerToDispatch.DeclaringType);
-                        _engine.DispatchHandlerCall(handlerToDispatch, handlerClass, Encoding.UTF8.GetString(e.Body));
+                        await _engine.DispatchHandlerCall(handlerToDispatch, handlerClass, Encoding.UTF8.GetString(e.Body));
                     }
 
                     channel.BasicAck(e.DeliveryTag, false);

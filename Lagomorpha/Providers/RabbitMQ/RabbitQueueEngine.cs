@@ -3,6 +3,8 @@ using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace Lagomorpha.Providers.RabbitMQ
 {
@@ -16,13 +18,22 @@ namespace Lagomorpha.Providers.RabbitMQ
             LoadDefinitions(GetMethodHandlers(configuration.Assembly));
         }
 
-        public void DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg)
+        public async Task DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg)
         {
             if (handlerToDispatch.GetParameters().Count() == 0)
                 handlerToDispatch.Invoke(handlerCaller, new object[] { });
 
             var parameterType = handlerToDispatch.GetParameters()[0].ParameterType;
-            handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
+            var methodIsAsync = handlerToDispatch.GetCustomAttribute<AsyncStateMachineAttribute>() != null;
+
+            if (methodIsAsync)
+            {
+                await (Task) handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
+            } 
+            else
+            {
+                handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
+            }
         }
 
         private MethodInfo[] GetMethodHandlers(Assembly assembly)

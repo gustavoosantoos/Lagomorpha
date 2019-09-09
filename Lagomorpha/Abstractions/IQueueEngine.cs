@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace Lagomorpha.Abstractions
 {
@@ -7,6 +8,6 @@ namespace Lagomorpha.Abstractions
     {
         Dictionary<string, MethodInfo[]> HandlersDefinitions { get; }
 
-        void DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg);
+        Task DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg);
     }
 }
