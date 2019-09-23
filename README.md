@@ -15,7 +15,19 @@ The rabbit comes from the family Lagomorpha.
 public void ConfigureServices(IServiceCollection services)
 {
     ...
-    services.AddLagomorpha(typeof(Startup));
+    services.AddLagomorpha(config =>
+    {
+        config.UseRabbitMQ()
+              .WithDefaultAssembly(typeof(Startup).Assembly)
+              .WithUri("") // You can configure by uri or separated data, as below...
+              .WithHost("localhost")
+              .WithPort(26001)
+              .WithUsername("root")
+              .WithPassword("!root");
+    });
+    
+    // Some other dependencies
+    
     services.AddMvc();
 }
 ~~~~
@@ -56,17 +68,6 @@ public class MessageHandler
 public void ConfigureServices(IServiceCollection services)
 {
     ...
-    services.AddLagomorpha(config =>
-    {
-        config.UseRabbitMQ()
-              .WithDefaultAssembly(typeof(Startup).Assembly)
-              .WithUri("") // You can configure by uri or separated data, as below...
-              .WithHost("localhost")
-              .WithPort(26001)
-              .WithUsername("root")
-              .WithPassword("!root");
-    });
-    
     services.AddScoped<MessageHandler>();
     services.AddMvc();
 }
