@@ -33,7 +33,7 @@ namespace LagomorphaTests
                 config.UseRabbitMQ()
                       .WithDefaultAssembly(typeof(Startup).Assembly)
                       .WithHost("localhost")
-                      .WithPort(26001)
+                      .WithPort(26000)
                       .WithUsername("root")
                       .WithPassword("!root");
             });

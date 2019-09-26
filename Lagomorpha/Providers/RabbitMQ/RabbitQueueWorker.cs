@@ -54,10 +54,10 @@ namespace Lagomorpha.Providers.RabbitMQ
                         var response = await _engine.DispatchHandlerCall(handlerToDispatch, handlerClass, Encoding.UTF8.GetString(e.Body));
 
                         var queueHandlerAttibute = handlerToDispatch.GetCustomAttribute<QueueHandlerAttribute>();
-                        if (!string.IsNullOrWhiteSpace(queueHandlerAttibute.ResponseQueue))
+                        if (!string.IsNullOrWhiteSpace(queueHandlerAttibute.ResponseQueue) && response != null)
                         {
-                            channel.QueueDeclare(queueHandlerAttibute.ResponseQueue);
-                            channel.BasicPublish(queueHandlerAttibute.ResponseQueue, "", body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+                            channel.QueueDeclare(queueHandlerAttibute.ResponseQueue, true, false, false);
+                            channel.BasicPublish("", queueHandlerAttibute.ResponseQueue, body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
                         }
                     }
 

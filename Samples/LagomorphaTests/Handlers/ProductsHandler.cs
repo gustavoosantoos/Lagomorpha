@@ -1,15 +1,21 @@
 ﻿using Lagomorpha;
 using System;
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace LagomorphaTests.Handlers
 {
     public class ProductsHandler
     {
-        [QueueHandler("new-products", ResponseQueue = "")]
-        public void HandleNewProduct(NewProduct p)
+        [QueueHandler("new-products", ResponseQueue = "new-product-response")]
+        public async Task<object> HandleNewProduct(NewProduct p)
         {
-
+            await Task.Delay(2000);
+            Console.WriteLine(p.Name);
+            return new
+            {
+                FullName = $"Teste: {p.Name} inserido com sucesso"
+            };
         }
 
         [QueueHandler("remove-products")]
