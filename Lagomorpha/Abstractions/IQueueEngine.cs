@@ -8,6 +8,6 @@ namespace Lagomorpha.Abstractions
     {
         Dictionary<string, MethodInfo[]> HandlersDefinitions { get; }
 
-        Task DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg);
+        Task<object> DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg);
     }
 }

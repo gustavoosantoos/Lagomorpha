@@ -6,7 +6,7 @@ namespace LagomorphaTests.Handlers
 {
     public class ProductsHandler
     {
-        [QueueHandler("new-products")]
+        [QueueHandler("new-products", ResponseQueue = "")]
         public void HandleNewProduct(NewProduct p)
         {
 

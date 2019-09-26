@@ -18,22 +18,28 @@ namespace Lagomorpha.Providers.RabbitMQ
             LoadDefinitions(GetMethodHandlers(configuration.Assembly));
         }
 
-        public async Task DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg)
+        public async Task<object> DispatchHandlerCall(MethodInfo handlerToDispatch, object handlerCaller, string arg)
         {
             if (handlerToDispatch.GetParameters().Count() == 0)
                 handlerToDispatch.Invoke(handlerCaller, new object[] { });
 
+            object response;
             var parameterType = handlerToDispatch.GetParameters()[0].ParameterType;
             var methodIsAsync = handlerToDispatch.GetCustomAttribute<AsyncStateMachineAttribute>() != null;
 
             if (methodIsAsync)
             {
-                await (Task) handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
-            } 
+                var task = (Task) handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
+                await task.ConfigureAwait(false);
+                var resultProperty = task.GetType().GetProperty("Result");
+                response = resultProperty.GetValue(task);
+            }
             else
             {
-                handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
+                response = handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
             }
+
+            return response;
         }
 
         private MethodInfo[] GetMethodHandlers(Assembly assembly)

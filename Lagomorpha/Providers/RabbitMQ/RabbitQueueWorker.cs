@@ -1,9 +1,11 @@
 ﻿using Lagomorpha.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,7 +51,14 @@ namespace Lagomorpha.Providers.RabbitMQ
                     foreach (var handlerToDispatch in _engine.HandlersDefinitions[e.RoutingKey])
                     {
                         var handlerClass = scope.ServiceProvider.GetService(handlerToDispatch.DeclaringType);
-                        await _engine.DispatchHandlerCall(handlerToDispatch, handlerClass, Encoding.UTF8.GetString(e.Body));
+                        var response = await _engine.DispatchHandlerCall(handlerToDispatch, handlerClass, Encoding.UTF8.GetString(e.Body));
+
+                        var queueHandlerAttibute = handlerToDispatch.GetCustomAttribute<QueueHandlerAttribute>();
+                        if (!string.IsNullOrWhiteSpace(queueHandlerAttibute.ResponseQueue))
+                        {
+                            channel.QueueDeclare(queueHandlerAttibute.ResponseQueue);
+                            channel.BasicPublish(queueHandlerAttibute.ResponseQueue, "", body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+                        }
                     }
 
                     channel.BasicAck(e.DeliveryTag, false);
