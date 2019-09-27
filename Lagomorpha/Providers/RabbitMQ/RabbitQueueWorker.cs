@@ -1,9 +1,11 @@
 ﻿using Lagomorpha.Abstractions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -30,6 +32,7 @@ namespace Lagomorpha.Providers.RabbitMQ
             else
             {
                 _connectionFactory.HostName = configuration.Host;
+                _connectionFactory.Port = configuration.Port;
                 _connectionFactory.UserName = configuration.Username ?? ConnectionFactory.DefaultUser;
                 _connectionFactory.Password = configuration.Password ?? ConnectionFactory.DefaultPass;
             }
@@ -41,14 +44,21 @@ namespace Lagomorpha.Providers.RabbitMQ
             var channel = connection.CreateModel();
             var consumer = new EventingBasicConsumer(channel);
 
-            consumer.Received += (sender, e) =>
+            consumer.Received += async (sender, e) =>
             {
                 using (var scope = _provider.CreateScope())
                 {
                     foreach (var handlerToDispatch in _engine.HandlersDefinitions[e.RoutingKey])
                     {
                         var handlerClass = scope.ServiceProvider.GetService(handlerToDispatch.DeclaringType);
-                        _engine.DispatchHandlerCall(handlerToDispatch, handlerClass, Encoding.UTF8.GetString(e.Body));
+                        var response = await _engine.DispatchHandlerCall(handlerToDispatch, handlerClass, Encoding.UTF8.GetString(e.Body));
+
+                        var queueHandlerAttibute = handlerToDispatch.GetCustomAttribute<QueueHandlerAttribute>();
+                        if (!string.IsNullOrWhiteSpace(queueHandlerAttibute.ResponseQueue) && response != null)
+                        {
+                            channel.QueueDeclare(queueHandlerAttibute.ResponseQueue, true, false, false);
+                            channel.BasicPublish("", queueHandlerAttibute.ResponseQueue, body: Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(response)));
+                        }
                     }
 
                     channel.BasicAck(e.DeliveryTag, false);

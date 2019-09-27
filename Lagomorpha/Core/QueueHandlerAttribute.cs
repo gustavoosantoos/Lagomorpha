@@ -6,6 +6,7 @@ namespace Lagomorpha
     public class QueueHandlerAttribute : Attribute
     {
         public string QueueName { get; }
+        public string ResponseQueue { get; set; }
         public InputFormat Format { get; }
         public int Order { get; set; }
 
