@@ -1,9 +1,9 @@
 ﻿using Lagomorpha.Abstractions;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Lagomorpha.Providers.RabbitMQ
@@ -29,14 +29,14 @@ namespace Lagomorpha.Providers.RabbitMQ
 
             if (methodIsAsync)
             {
-                var task = (Task) handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
+                var task = (Task) handlerToDispatch.Invoke(handlerCaller, new[] { JsonSerializer.Deserialize(arg, parameterType) });
                 await task.ConfigureAwait(false);
                 var resultProperty = task.GetType().GetProperty("Result");
                 response = resultProperty.GetValue(task);
             }
             else
             {
-                response = handlerToDispatch.Invoke(handlerCaller, new[] { JsonConvert.DeserializeObject(arg, parameterType) });
+                response = handlerToDispatch.Invoke(handlerCaller, new[] { JsonSerializer.Deserialize(arg, parameterType) });
             }
 
             return response;
@@ -59,7 +59,7 @@ namespace Lagomorpha.Providers.RabbitMQ
 
             foreach (var methodInfo in methodsOrderedAndGrouped)
             {
-                if (methodInfo.Any(mi => mi.GetParameters().Count() > 1))
+                if (methodInfo.Any(mi => mi.GetParameters().Length > 1))
                     throw new TargetParameterCountException("Method must have none or one parameter");
 
                 HandlersDefinitions.Add(methodInfo.Key, methodInfo.ToArray());
