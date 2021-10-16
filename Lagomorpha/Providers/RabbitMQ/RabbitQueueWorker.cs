@@ -38,10 +38,10 @@ namespace Lagomorpha.Providers.RabbitMQ
             }
         }
 
-        protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var connection = _connectionFactory.CreateConnection();
-            var channel = connection.CreateModel();
+            using var connection = _connectionFactory.CreateConnection();
+            using var channel = connection.CreateModel();
             var consumer = new EventingBasicConsumer(channel);
 
             consumer.Received += async (sender, e) =>
@@ -71,7 +71,10 @@ namespace Lagomorpha.Providers.RabbitMQ
                 channel.BasicConsume(queue, false, consumer);
             }
 
-            return Task.CompletedTask;
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                await Task.Delay(3000, stoppingToken);
+            }
         }
     }
 }
